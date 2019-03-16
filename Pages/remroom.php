@@ -1,0 +1,104 @@
+<?php
+   session_start();
+   $username="";
+   if(!isset($_SESSION['name']))
+    {    header("Location:./login.php");
+     }
+   else
+    {
+      $conn = mysqli_connect("localhost","root","","taj");
+       if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	  }
+          $name=$_SESSION['name'];
+          $q="select name from users where email='$name'";
+	  $result = mysqli_query($conn, $q);
+	  if (mysqli_num_rows($result) > 0) {
+		  while($row = mysqli_fetch_assoc($result)) {
+	  $username=$row["name"];
+		  }
+    } 
+	$itemErr="";
+	if($_SERVER["REQUEST_METHOD"] == "POST")
+	{
+			$item=$_POST['item'];
+			$q="select * from rooms where number='$item'";
+			$result=mysqli_query($conn,$q);
+			if(mysqli_num_rows($result) > 0)
+			{
+				$q="DELETE FROM `rooms` WHERE `rooms`.`number` = '$item'";
+				mysqli_query($conn,$q);
+				$itemErr="Room removal complete";
+			
+			}
+			else
+			{
+				$itemErr="No rooms present";
+			}
+	}
+	}
+?>
+<html>
+
+<head>
+<title>The Taj Hotel and Resort</title>
+<script language="javascript" type="text/javascript">
+</script>
+<link rel="stylesheet" type="text/css" href="layout2.css">
+</head>
+<div class="image">
+<img src="./logo.png" height="125" width="300" style="position:absolute; top:0px; right:0px;">
+</div>
+<body>
+<center><font size="12" color="white">The Taj Hotel and Resort</font><center>
+
+<header>
+  <font size="4"><h2>Guests Management</h2></font>
+  
+</header>
+
+<section>
+<div class="topnav">
+<a href="./home.php">Home</a>
+  <a href="./inout.php">Rooms</a>
+  <a href="./chkin.php">Check In</a>
+  <a href="./chkout.php">Check Out</a>
+  <a href="./guests.php">Guests</a>
+  <a href="./orders.php">Orders</a>
+  <a href="./service.php">Service</a>
+  <a class="active" href="./admin1.php">Admin</a>
+  <a href="./history.php">History</a>
+  <span>Logged in as:<?php echo $username; ?></span>
+   <a href="./logout.php">Logout</a>
+</div>
+<main>
+   <h1>Remove room<h1>
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+<?php 
+    $q="select number from rooms";
+    $result=mysqli_query($conn,$q);
+	if (mysqli_num_rows($result) > 0) {
+		  echo "<label>Room number:</label>";
+		  echo "<select name='item'>";
+		  while($row = mysqli_fetch_array($result)) {
+			  $opt=$row['number'];
+			  echo "<option value='$opt'>".$opt."</option>";
+		  }
+		  echo "</select>";
+		  echo "<br>";
+		  $dodo="<input align='center' type='submit' value='Remove room'>";
+		  echo $dodo;
+	}
+	else{
+		echo "No rooms present";
+	}
+ ?>
+</form>
+<span class="error"><?php echo $itemErr; ?></span>
+</main>
+</section>
+
+
+
+</body>
+</html>
